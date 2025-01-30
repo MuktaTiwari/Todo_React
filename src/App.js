@@ -8,6 +8,7 @@ class TodoList extends Component {
             taskName: "",
             description: "",
             tasks: [],
+            editingTask: null, // to track which task is being edited
         };
     }
 
@@ -37,8 +38,33 @@ class TodoList extends Component {
         this.setState({ tasks: updatedTasks });
     };
 
+    // Method to start editing a task
+    editTask = (task) => {
+        this.setState({
+            taskName: task.name,
+            description: task.description,
+            editingTask: task, // Set the task to be edited
+        });
+    };
+
+    // Method to update the task
+    updateTask = () => {
+        const { taskName, description, tasks, editingTask } = this.state;
+        const updatedTasks = tasks.map((task) =>
+            task.id === editingTask.id
+                ? { ...task, name: taskName, description: description }
+                : task
+        );
+        this.setState({
+            tasks: updatedTasks,
+            taskName: "",
+            description: "",
+            editingTask: null, // Reset editing task
+        });
+    };
+
     render() {
-        const { taskName, description, tasks } = this.state;
+        const { taskName, description, tasks, editingTask } = this.state;
 
         return (
             <div className="container mt-5">
@@ -64,12 +90,21 @@ class TodoList extends Component {
                                     this.updateInput("description", e.target.value)
                                 }
                             />
-                            <button
-                                className="btn btn-success"
-                                onClick={this.addTask}
-                            >
-                                Add Task
-                            </button>
+                            {editingTask ? (
+                                <button
+                                    className="btn btn-warning"
+                                    onClick={this.updateTask} // Update task
+                                >
+                                    Update Task
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-success"
+                                    onClick={this.addTask} // Add new task
+                                >
+                                    Add Task
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -90,9 +125,15 @@ class TodoList extends Component {
                                         <td>{task.description}</td>
                                         <td>
                                             <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={() => this.editTask(task)} // Edit task
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
                                                 className="btn btn-danger btn-sm"
                                                 onClick={() =>
-                                                    this.deleteTask(task.id)
+                                                    this.deleteTask(task.id) // Delete task
                                                 }
                                             >
                                                 Delete
